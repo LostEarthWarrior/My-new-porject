@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Арифметическая прогрессия — понятный гайд</title>
+  <meta name="description" content="Дружелюбный и современный гайд по арифметической прогрессии: определения, визуализации, пошаговые алгоритмы, ошибки, практика и мини‑тренажёр." />
+  
+  <!-- Встроенные стили: светлая, аккуратная тема + адаптивная печать -->
+  <style>
+    /* ----------- Переменные темы ----------- */
+    :root{
+      --bg: #f6f8fb;           /* фон страницы */
+      --paper: #ffffff;        /* фон карточек */
+      --ink: #0f172a;          /* основной текст */
+      --muted: #475569;        /* вторичный текст */
+      --primary: #2563eb;      /* синий акцент */
+      --primary-soft: #e0e7ff; /* мягкий фон акцентов */
+      --accent: #16a34a;       /* зелёный акцент */
+      --warn: #dc2626;         /* предупреждение */
+      --shadow: 0 10px 30px rgba(2,6,23,.08);
+      --radius: 16px;
+      --radius-lg: 22px;
+      --gap: 16px;
+      --gap-lg: 24px;
+      --maxw: 1180px;
+    }
+
+    /* ----------- Базовая типографика и компоновка ----------- */
+    html, body{height:100%;}
+    body{
+      margin:0; color:var(--ink); background:linear-gradient(180deg,#f8fafc, var(--bg));
+      font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, "Inter", "SF Pro Text", Arial, sans-serif;
+    }
+    .container{max-width:var(--maxw); margin:0 auto; padding:24px 16px 80px;}
+
+    header.hero{
+      position:relative; overflow:hidden; isolation:isolate; color:#0b1220;
+      background: radial-gradient(1200px 500px at 20% -10%, #dbeafe 0%, rgba(219,234,254,0) 60%),
+                  radial-gradient(900px 500px at 120% 10%, #e9d5ff 0%, rgba(233,213,255,0) 60%),
+                  linear-gradient(180deg,#ffffff, #eef2ff);
+      border-bottom:1px solid #e5e7eb;
+    }
+    .hero .wrap{max-width:var(--maxw); margin:0 auto; padding:48px 16px 28px;}
+    .hero h1{font-size: clamp(26px, 4vw, 42px); margin:0 0 8px; letter-spacing:.2px;}
+    .hero p{margin:0; color:#334155; font-size:clamp(15px, 2vw, 18px);}
+    .hero .cta{margin-top:20px; display:flex; gap:12px; flex-wrap:wrap}
+    .btn{border:none; border-radius:999px; padding:12px 18px; cursor:pointer; font-weight:600; box-shadow:var(--shadow);}
+    .btn.primary{background:var(--primary); color:#fff;}
+    .btn.ghost{background:#fff; color:var(--primary); border:1px solid #c7d2fe}
+
+    nav.checklist{margin-top:24px;}
+    nav.checklist ol{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; list-style:none; counter-reset:step; padding:0;}
+    nav.checklist li{background:var(--paper); border:1px solid #e5e7eb; border-radius:var(--radius); padding:14px 14px 14px 46px; position:relative; box-shadow:var(--shadow);}
+    nav.checklist li::before{counter-increment:step; content:counter(step); position:absolute; left:12px; top:12px; width:28px; height:28px; display:grid; place-items:center; border-radius:50%; background:var(--primary); color:#fff; font-weight:700;}
+
+    main{margin-top:28px;}
+    section{margin:40px 0;}
+    .grid{display:grid; gap:var(--gap);}
+    .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr));}
+    @media (max-width:960px){ .grid.cols-2{grid-template-columns:1fr;} }
+
+    .card{background:var(--paper); border:1px solid #e5e7eb; border-radius:var(--radius-lg); padding:18px; box-shadow:var(--shadow)}
+    .tag{display:inline-flex; align-items:center; gap:6px; background:var(--primary-soft); color:#1e293b; border-radius:999px; padding:6px 10px; font-size:13px; font-weight:600;}
+    .muted{color:var(--muted)}
+
+    h2{font-size: clamp(20px, 3vw, 28px); margin:0 0 10px}
+    h3{font-size: clamp(18px, 2.4vw, 22px); margin:16px 0 6px}
+
+    .formula-box{display:grid; gap:10px;}
+    .formula{display:flex; align-items:center; gap:10px; padding:12px; border:1px dashed #d4d4d8; border-radius:12px; background:#f8fafc}
+    .formula strong{white-space:nowrap}
+    .formula .note{color:#475569; font-size:14px}
+
+    details.tip{background:#f1f5f9; border:1px solid #e2e8f0; padding:12px 14px; border-radius:12px}
+    details.tip summary{cursor:pointer; font-weight:700}
+
+    /* Интерактивная визуализация */
+    .viz-panel{display:grid; gap:var(--gap);}
+    .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--gap);}
+    .control{background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px}
+    .control label{display:flex; justify-content:space-between; font-size:14px; color:#475569}
+    .control input[type=number], .control input[type=range]{width:100%}
+    .sequence{display:flex; flex-wrap:wrap; gap:8px}
+    .term{padding:8px 10px; border-radius:10px; background:linear-gradient(180deg,#fff,#f8fafc); border:1px solid #e2e8f0; box-shadow: inset 0 -3px 6px rgba(2,6,23,.04)}
+    .svg-wrap{background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:8px;}
+
+    .algo li{margin-bottom:8px}
+
+    /* Мини‑тренажёр */
+    .trainer .line{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .trainer input[type=number], .trainer input[type=text]{padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px}
+    .trainer .out{min-height:24px}
+
+    .kbd{display:inline-block; padding:2px 8px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px}
+
+    /* Печать (PDF) */
+    @media print{
+      body{background:#fff}
+      header.hero, .btn.print, .trainer .actions, .viz-panel .controls{display:none!important}
+      .card{box-shadow:none; border:1px solid #e5e7eb}
+      a[href]::after{content:" (" attr(href) ")"; font-size:12px; color:#64748b}
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <h1>Арифметическая прогрессия — понятный, визуальный и практичный гайд</h1>
+      <p>Если раньше тема «не заходила», здесь разложим всё по полочкам: от идей и метафор до задач, алгоритмов и мини‑тренажёра.</p>
+      <div class="cta">
+        <button class="btn primary print" onclick="window.print()">Печать / PDF</button>
+        <button class="btn ghost" onclick="document.getElementById('viz').scrollIntoView({behavior:'smooth'})">К интерактиву</button>
+      </div>
+
+      <nav class="checklist" aria-label="Концептуальный чек‑лист">
+        <ol>
+          <li><strong>Интуиция:</strong> лестница одинаковых шагов → так растёт (или убывает) последовательность.</li>
+          <li><strong>Язык:</strong> фиксируем <em>первый член</em> и <em>разность</em>.</li>
+          <li><strong>Формулы:</strong> явная, рекуррентная, сумма первых <em>n</em> членов.</li>
+          <li><strong>Визуализация:</strong> на числовой оси и столбиках — как меняется каждый шаг.</li>
+          <li><strong>Алгоритмы:</strong> пошаговые рецепты для типовых задач.</li>
+          <li><strong>Практика:</strong> задания с подсказками и мини‑тренажёр.</li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <main>
+      <section id="intro" class="card">
+        <p class="tag">Введение</p>
+        <h2>Что такое арифметическая прогрессия (простыми словами)</h2>
+        <p>
+          Представьте лестницу, где высота каждой ступеньки одинакова. С каждого шага вы поднимаетесь (или спускаетесь) на одно и то же число. 
+          Последовательность чисел, получающаяся такими «равными шагами», и есть <strong>арифметическая прогрессия</strong>.
+        </p>
+        <details class="tip"><summary>Метафора «двигатель равного шага»</summary>
+          <p>Есть «стартовая точка» — первый член, и «тяга двигателя» — разность. Каждый новый член — это предыдущий плюс одинаковая прибавка (или минус — если двигаемся вниз).</p>
+        </details>
+      </section>
+
+      <section id="defs" class="grid cols-2">
+        <article class="card">
+          <p class="tag">Определения</p>
+          <h2>Ключевые понятия</h2>
+          <ul>
+            <li><strong>Первый член</strong> прогрессии — <span class="kbd">a<sub>1</sub></span>.</li>
+            <li><strong>Разность</strong> — одно и то же число, на которое каждый раз изменяется следующий член. Обозначение: <span class="kbd">d</span>.</li>
+            <li><strong>n‑й член</strong> — элемент с порядковым номером <span class="kbd">n</span>: <span class="kbd">a<sub>n</sub></span>.</li>
+          </ul>
+          <details class="tip"><summary>Признак прогрессии</summary>
+            <p>Для любой тройки подряд идущих членов верно: <span class="kbd">a<sub>k+1</sub> - a<sub>k</sub> = d</span> (всегда одно и то же).</p>
+          </details>
+        </article>
+        <article class="card">
+          <p class="tag">Формулы (в MathML)</p>
+          <h2>Базовые формулы</h2>
+          <div class="formula-box">
+            <div class="formula">
+              <strong>Явная:</strong>
+              <span>
+                <math display="inline">
+                  <msub><mi>a</mi><mi>n</mi></msub>
+                  <mo>=</mo>
+                  <msub><mi>a</mi><mn>1</mn></msub>
+                  <mo>+</mo>
+                  <mrow>
+                    <mo>(</mo>
+                    <mi>n</mi>
+                    <mo>−</mo>
+                    <mn>1</mn>
+                    <mo>)</mo>
+                  </mrow>
+                  <mi>d</mi>
+                </math>
+              </span>
+            </div>
+            <div class="formula">
+              <strong>Рекуррентная:</strong>
+              <span>
+                <math display="inline">
+                  <msub><mi>a</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub>
+                  <mo>=</mo>
+                  <msub><mi>a</mi><mi>n</mi></msub>
+                  <mo>+</mo><mi>d</mi>
+                </math>
+              </span>
+            </div>
+            <div class="formula">
+              <strong>Сумма первых <em>n</em> членов:</strong>
+              <span>
+                <math display="inline">
+                  <msub><mi>S</mi><mi>n</mi></msub>
+                  <mo>=</mo>
+                  <mfrac>
+                    <mi>n</mi>
+                    <mn>2</mn>
+                  </mfrac>
+                  <mrow>
+                    <mo>(</mo>
+                    <mn>2</mn>
+                    <msub><mi>a</mi><mn>1</mn></msub>
+                    <mo>+</mo>
+                    <mrow>
+                      <mo>(</mo>
+                      <mi>n</mi><mo>−</mo><mn>1</mn>
+                      <mo>)</mo>
+                    </mrow>
+                    <mi>d</mi>
+                    <mo>)</mo>
+                  </mrow>
+                </math>
+              </span>
+            </div>
+            <div class="formula">
+              <strong>Средний член:</strong>
+              <span class="note">Если <em>j</em> — середина между <em>i</em> и <em>k</em>, то 
+                <math display="inline">
+                  <msub><mi>a</mi><mi>j</mi></msub>
+                  <mo>=</mo>
+                  <mfrac>
+                    <mrow>
+                      <msub><mi>a</mi><mi>i</mi></msub>
+                      <mo>+</mo>
+                      <msub><mi>a</mi><mi>k</mi></msub>
+                    </mrow>
+                    <mn>2</mn>
+                  </mfrac>
+                </math>
+              </span>
+            </div>
+          </div>
+          <details class="tip"><summary>Когда возрастает / убывает?</summary>
+            <ul>
+              <li><span class="kbd">d &gt; 0</span> — прогрессия возрастает.</li>
+              <li><span class="kbd">d = 0</span> — все члены равны.</li>
+              <li><span class="kbd">d &lt; 0</span> — прогрессия убывает.</li>
+            </ul>
+          </details>
+        </article>
+      </section>
+
+      <section id="viz" class="card">
+        <p class="tag">Визуализация</p>
+        <h2>Интерактив: «строим» свою прогрессию</h2>
+        <p class="muted">Двигайте бегунки: увидите члены прогрессии, столбиковую диаграмму и мгновенные формулы. Это помогает «почувствовать» тему.</p>
+        <div class="viz-panel">
+          <div class="controls">
+            <div class="control">
+              <label>Первый член <span class="kbd">a₁</span> <output id="o_a1">2</output></label>
+              <input id="a1" type="range" min="-10" max="10" step="1" value="2" />
+            </div>
+            <div class="control">
+              <label>Разность <span class="kbd">d</span> <output id="o_d">3</output></label>
+              <input id="d" type="range" min="-10" max="10" step="1" value="3" />
+            </div>
+            <div class="control">
+              <label>Число членов <span class="kbd">n</span> <output id="o_n">7</output></label>
+              <input id="n" type="range" min="1" max="15" step="1" value="7" />
+            </div>
+          </div>
+
+          <div class="card" style="padding:12px">
+            <h3 style="margin-top:4px">Последовательность</h3>
+            <div class="sequence" id="seq"></div>
+          </div>
+
+          <div class="svg-wrap">
+            <svg id="chart" viewBox="0 0 640 260" width="100%" height="260" role="img" aria-label="Столбиковая диаграмма членов прогрессии">
+              <desc>Диаграмма значений членов арифметической прогрессии</desc>
+              <rect x="0" y="0" width="640" height="260" fill="#ffffff" rx="12" ry="12"/>
+              <!-- Оси -->
+              <line x1="40" y1="220" x2="610" y2="220" stroke="#cbd5e1"/>
+              <line x1="40" y1="20" x2="40" y2="220" stroke="#cbd5e1"/>
+              <g id="bars"></g>
+            </svg>
+          </div>
+
+          <div class="grid cols-2">
+            <div class="card">
+              <h3>Формула n‑го члена</h3>
+              <p>
+                <math display="block">
+                  <msub><mi>a</mi><mi>n</mi></msub>
+                  <mo>=</mo>
+                  <msub><mi>a</mi><mn>1</mn></msub>
+                  <mo>+</mo>
+                  <mrow>
+                    <mo>(</mo>
+                    <mi>n</mi>
+                    <mo>−</mo>
+                    <mn>1</mn>
+                    <mo>)</mo>
+                  </mrow>
+                  <mi>d</mi>
+                </math>
+              </p>
+              <p class="muted">Подстановка: <span id="explicitSub" class="kbd"></span></p>
+            </div>
+            <div class="card">
+              <h3>Сумма первых n членов</h3>
+              <p>
+                <math display="block">
+                  <msub><mi>S</mi><mi>n</mi></msub>
+                  <mo>=</mo>
+                  <mfrac>
+                    <mi>n</mi>
+                    <mn>2</mn>
+                  </mfrac>
+                  <mrow>
+                    <mo>(</mo>
+                    <mn>2</mn>
+                    <msub><mi>a</mi><mn>1</mn></msub>
+                    <mo>+</mo>
+                    <mrow>
+                      <mo>(</mo>
+                      <mi>n</mi><mo>−</mo><mn>1</mn>
+                      <mo>)</mo>
+                    </mrow>
+                    <mi>d</mi>
+                    <mo>)</mo>
+                  </mrow>
+                </math>
+              </p>
+              <p class="muted">Подстановка: <span id="sumSub" class="kbd"></span></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="algos" class="grid cols-2">
+        <article class="card">
+          <p class="tag">Пошаговые алгоритмы</p>
+          <h2>Как решать типовые задачи</h2>
+          <h3>1) Найти <em>a<sub>n</sub></em></h3>
+          <ol class="algo">
+            <li>Определи <span class="kbd">a₁</span> и <span class="kbd">d</span> (из условия).</li>
+            <li>Подставь в явную формулу <span class="kbd">a<sub>n</sub> = a₁ + (n−1)·d</span>.</li>
+            <li>Аккуратно посчитай в скобках: <span class="kbd">(n−1)·d</span>, затем прибавь <span class="kbd">a₁</span>.</li>
+          </ol>
+          <h3>2) Найти разность <em>d</em> по двум членам</h3>
+          <p>Даны <span class="kbd">a<sub>k</sub></span> и <span class="kbd">a<sub>m</sub></span>. Тогда
+            <math display="inline">
+              <mi>d</mi>
+              <mo>=</mo>
+              <mfrac>
+                <mrow>
+                  <msub><mi>a</mi><mi>m</mi></msub>
+                  <mo>−</mo>
+                  <msub><mi>a</mi><mi>k</mi></msub>
+                </mrow>
+                <mrow>
+                  <mi>m</mi>
+                  <mo>−</mo>
+                  <mi>k</mi>
+                </mrow>
+              </mfrac>
+            </math>
+          </p>
+          <h3>3) Найти сумму <em>S<sub>n</sub></em></h3>
+          <ol class="algo">
+            <li>Если известны <span class="kbd">a₁</span> и <span class="kbd">d</span>, используй формулу суммы (см. выше).</li>
+            <li>Если известны <span class="kbd">a₁</span> и <span class="kbd">a<sub>n</sub></span>, удобно: 
+              <math display="inline">
+                <msub><mi>S</mi><mi>n</mi></msub>
+                <mo>=</mo>
+                <mfrac>
+                  <mi>n</mi>
+                  <mn>2</mn>
+                </mfrac>
+                <mrow>
+                  <mo>(</mo>
+                  <msub><mi>a</mi><mn>1</mn></msub>
+                  <mo>+</mo>
+                  <msub><mi>a</mi><mi>n</mi></msub>
+                  <mo>)</mo>
+                </mrow>
+              </math>
+            </li>
+          </ol>
+          <h3>4) Найти номер члена по значению</h3>
+          <p>Решаем уравнение 
+            <math display="inline">
+              <msub><mi>a</mi><mi>n</mi></msub>
+              <mo>=</mo>
+              <mi>A</mi>
+            </math> по <em>n</em>:
+            <span class="kbd">A = a₁ + (n−1)·d → n = 1 + (A − a₁)/d</span> (если <span class="kbd">d ≠ 0</span>).
+          </p>
+        </article>
+        
+        <article class="card">
+          <p class="tag">Ошибки и лайфхаки</p>
+          <h2>Частые промахи — и как их evitar</h2>
+          <ul>
+            <li><strong>Путают</strong> явную и рекуррентную формулы. <em>Лайфхак:</em> явная сразу даёт <span class="kbd">a<sub>n</sub></span>, рекуррентная — «шаг вперёд».</li>
+            <li><strong>Забывают</strong> вычитать единицу: в формуле стоит <span class="kbd">(n−1)</span>, а не <span class="kbd">n</span>.</li>
+            <li><strong>Теряются знаки</strong> при отрицательном <span class="kbd">d</span>. Проверь в конце: ожидалась убывающая?</li>
+            <li><strong>Сумма</strong>: удобно паровать «с концов» — первый с последним, второй с предпоследним и т. д.</li>
+            <li><strong>Разность по двум членам</strong>: делим разность значений на разность номеров, не наоборот.</li>
+          </ul>
+          <details class="tip"><summary>Микро‑памятка</summary>
+            <p>Держим в голове тройку: старт <span class="kbd">a₁</span>, шаг <span class="kbd">d</span>, номер <span class="kbd">n</span>. Любая задача — это восстановить неизвестные из этой тройки.</p>
+          </details>
+        </article>
+      </section>
+
+      <section id="cases" class="card">
+        <p class="tag">Примеры</p>
+        <h2>Разбираем типовые задачи</h2>
+        <div class="grid cols-2">
+          <article>
+            <h3>Задача 1 — найти 15‑й член</h3>
+            <p><strong>Дано:</strong> <span class="kbd">a₁ = 4</span>, <span class="kbd">d = −2</span>. Найти <span class="kbd">a<sub>15</sub></span>.</p>
+            <p><strong>Решение:</strong> 
+              <span class="kbd">a<sub>15</sub> = 4 + (15−1)·(−2) = 4 + 14·(−2) = 4 − 28 = −24</span>.
+            </p>
+            <p><strong>Ответ:</strong> <span class="kbd">−24</span>.</p>
+          </article>
+          <article>
+            <h3>Задача 2 — по двум членам</h3>
+            <p><strong>Дано:</strong> <span class="kbd">a<sub>5</sub> = 12</span>, <span class="kbd">a<sub>11</sub> = 0</span>. Найти <span class="kbd">d</span> и <span class="kbd">a₁</span>.</p>
+            <p>Сначала разность: 
+              <span class="kbd">d = (a<sub>11</sub> − a<sub>5</sub>)/(11−5) = (0 − 12)/6 = −2</span>.
+            </p>
+            <p>Потом <span class="kbd">a₁</span> из <span class="kbd">a<sub>5</sub> = a₁ + (5−1)·d</span> → 
+              <span class="kbd">a₁ = 12 − 4·(−2) = 20</span>.
+            </p>
+            <p><strong>Ответ:</strong> <span class="kbd">d = −2</span>, <span class="kbd">a₁ = 20</span>.</p>
+          </article>
+          <article>
+            <h3>Задача 3 — сумма первых 20 членов</h3>
+            <p><strong>Дано:</strong> <span class="kbd">a₁ = 3</span>, <span class="kbd">d = 1.5</span>. Найти <span class="kbd">S<sub>20</sub></span>.</p>
+            <p><em>Способ 1:</em> по формуле с <span class="kbd">a₁</span> и <span class="kbd">d</span>.
+              <span class="kbd">S<sub>20</sub> = (20/2)·(2·3 + (20−1)·1.5) = 10·(6 + 28.5) = 345</span>.
+            </p>
+            <p><em>Способ 2:</em> через <span class="kbd">a<sub>20</sub></span> и среднее: 
+              <span class="kbd">a<sub>20</sub> = 3 + 19·1.5 = 31.5</span>, 
+              тогда 
+              <span class="kbd">S<sub>20</sub> = (20/2)·(3 + 31.5) = 10·34.5 = 345</span>.
+            </p>
+          </article>
+          <article>
+            <h3>Задача 4 — найти номер по значению</h3>
+            <p><strong>Дано:</strong> <span class="kbd">a₁ = −5</span>, <span class="kbd">d = 4</span>. Для какого <span class="kbd">n</span> верно <span class="kbd">a<sub>n</sub> = 43</span>?</p>
+            <p>Решаем: <span class="kbd">43 = −5 + (n−1)·4 → (n−1) = 12 → n = 13</span>.</p>
+            <p><strong>Ответ:</strong> <span class="kbd">n = 13</span>.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="trainer" class="card trainer">
+        <p class="tag">Практика</p>
+        <h2>Мини‑тренажёр</h2>
+        <p class="muted">Сгенерируй задачу, реши и проверь. Если трудно — нажми «Подсказка».</p>
+        <div class="line actions" style="margin:8px 0 14px">
+          <button class="btn primary" onclick="genTask()">Новая задача</button>
+          <button class="btn ghost" onclick="showHint()">Подсказка</button>
+          <span id="task" class="kbd" style="min-width:240px"></span>
+        </div>
+        <div class="line">
+          <label>Ответ: <input id="answer" type="text" inputmode="numeric" placeholder="введи число"/></label>
+          <button class="btn" onclick="checkAnswer()">Проверить</button>
+          <strong id="result"></strong>
+        </div>
+        <div class="out muted" id="hint" style="margin-top:8px"></div>
+      </section>
+
+      <section id="practice" class="card">
+        <p class="tag">Самопроверка</p>
+        <h2>10 заданий с ответами (скрыты)</h2>
+        <ol>
+          <li>Дано <span class="kbd">a₁=7</span>, <span class="kbd">d=−3</span>. Найди <span class="kbd">a<sub>12</sub></span>. <details class="tip"><summary>Ответ</summary><p><span class="kbd">a<sub>12</sub>=7+(11)(−3)=−26</span></p></details></li>
+          <li>Дано <span class="kbd">a<sub>4</sub>=10</span>, <span class="kbd">a<sub>9</sub>=25</span>. Найди <span class="kbd">d</span> и <span class="kbd">a₁</span>. <details class="tip"><summary>Ответ</summary><p><span class="kbd">d=(25−10)/(9−4)=3</span>, <span class="kbd">a₁=10−3·3=1</span></p></details></li>
+          <li>В прогрессии <span class="kbd">a₁=5</span>, <span class="kbd">d=2.5</span>. Найди <span class="kbd">S<sub>16</sub></span>. <details class="tip"><summary>Ответ</summary><p><span class="kbd">S<sub>16</sub>=8(2·5+15·2.5)=8(10+37.5)=380</span></p></details></li>
+          <li>Найдите <span class="kbd">n</span>, если <span class="kbd">a₁=−8</span>, <span class="kbd">d=6</span>, <span class="kbd">a<sub>n</sub>=40</span>. <details class="tip"><summary>Ответ</summary><p><span class="kbd">40=−8+(n−1)·6 → n=9</span></p></details></li>
+          <li>Дано <span class="kbd">a<sub>7</sub>=13</span>, <span class="kbd">d=−1</span>. Найти <span class="kbd">a₁</span>. <details class="tip"><summary>Ответ</summary><p><span class="kbd">a₁=13−6(−1)=19</span></p></details></li>
+          <li>Дано <span class="kbd">a₁=0</span>, <span class="kbd">d=−4</span>. Найти <span class="kbd">a<sub>20</sub></span>. <details class="tip"><summary>Ответ</summary><p><span class="kbd">a<sub>20</sub>=0+19(−4)=−76</span></p></details></li>
+          <li>Дано <span class="kbd">a<sub>3</sub>=−1</span>, <span class="kbd">a<sub>8</sub>=14</span>. Найти <span class="kbd">S<sub>8</sub></span>. <details class="tip"><summary>Ответ</summary><p><span class="kbd">d=(14−(−1))/(8−3)=3</span>, <span class="kbd">a₁=−1−2·3=−7</span>, <span class="kbd">S<sub>8</sub>=4(2·(−7)+7·3)=4(−14+21)=28</span></p></details></li>
+          <li>Сколько членов нужно взять из прогрессии <span class="kbd">a₁=9</span>, <span class="kbd">d=−2</span>, чтобы сумма была <span class="kbd">S<sub>n</sub>=0</span>? <details class="tip"><summary>Ответ</summary><p>Решаем уравнение суммы: <span class="kbd">0=(n/2)(2·9+(n−1)(−2)) → n=9</span></p></details></li>
+          <li>В прогрессии один из членов равен 100, а следующий — 97. Найти <span class="kbd">d</span> и тип прогрессии. <details class="tip"><summary>Ответ</summary><p><span class="kbd">d=−3</span>, убывающая.</p></details></li>
+          <li>Докажите, что средний член равен среднему арифметическому соседних: 
+            <details class="tip"><summary>Решение</summary><p>
+              Пусть подряд: <span class="kbd">a<sub>k−1</sub>, a<sub>k</sub>, a<sub>k+1</sub></span>. Тогда 
+              <span class="kbd">a<sub>k</sub> = a<sub>k−1</sub> + d</span>, 
+              <span class="kbd">a<sub>k+1</sub> = a<sub>k</sub> + d</span>. 
+              Складываем: <span class="kbd">a<sub>k−1</sub> + a<sub>k+1</sub> = 2a<sub>k</sub> → a<sub>k} = (a<sub>k−1</sub> + a<sub>k+1</sub>)/2</span>.
+            </p></details>
+          </li>
+        </ol>
+      </section>
+
+      <section id="summary" class="card">
+        <p class="tag">Резюме</p>
+        <h2>Главное в двух строках</h2>
+        <ul>
+          <li>Арифметическая прогрессия — это «равный шаг»: <em>каждый следующий = предыдущий + d</em>.</li>
+          <li>Достаточно знать <span class="kbd">a₁</span> и <span class="kbd">d</span>, чтобы найти любой член и сумму первых <span class="kbd">n</span> членов.</li>
+        </ul>
+      </section>
+
+      <aside class="card">
+        <p class="tag">Справка</p>
+        <h3>Печать и мобильные</h3>
+        <ul>
+          <li><strong>PDF:</strong> нажмите «Печать / PDF» (вверху). В печатной версии скрыты интерактивы для чистоты.</li>
+          <li><strong>Мобильные:</strong> все блоки адаптируются, элементы крупные, кликабельные.</li>
+        </ul>
+      </aside>
+
+    </main>
+
+    <footer class="muted" style="margin-top:28px">
+      <p>© Гайд по арифметической прогрессии. Сделано с заботой о понимании темы.</p>
+    </footer>
+  </div>
+
+  <!-- Скрипты: визуализация и тренажёр (без внешних библиотек) -->
+  <script>
+    const $ = (sel) => document.querySelector(sel);
+    const a1El = $('#a1'), dEl = $('#d'), nEl = $('#n');
+    const oA1 = $('#o_a1'), oD = $('#o_d'), oN = $('#o_n');
+    const seqBox = $('#seq');
+    const bars = document.getElementById('bars');
+    const explicitSub = $('#explicitSub');
+    const sumSub = $('#sumSub');
+
+    function render(){
+      const a1 = +a1El.value, d = +dEl.value, n = +nEl.value;
+      oA1.textContent = a1; oD.textContent = d; oN.textContent = n;
+      seqBox.innerHTML = '';
+      const values = Array.from({length:n}, (_,i)=>a1 + i*d);
+      values.forEach((v,i)=>{
+        const el = document.createElement('span');
+        el.className = 'term'; el.textContent = `a${i+1}=${v}`; seqBox.appendChild(el);
+      });
+
+      // Подстановки
+      explicitSub.textContent = `aₙ = ${a1} + (n−1)·${d}`;
+      const s = n/2 * (2*a1 + (n-1)*d);
+      sumSub.textContent = `Sₙ = (${n}/2)·(2·${a1} + ${(n-1)}·${d}) = ${s}`;
+
+      // Диаграмма
+      const minV = Math.min(0, ...values), maxV = Math.max(0, ...values);
+      const padTop = 20, padBottom = 40, H = 220 - padTop, baseY = 220;
+      const scale = (val) => baseY - (val - 0) * (H/(maxV - 0 || 1));
+      bars.innerHTML = '';
+      const W = 560, x0 = 40, gap = Math.max(10, 40 - n*1.5), bw = Math.max(16, (W - (n+1)*gap)/n);
+      const zeroY = scale(0);
+      // линия нуля
+      const line0 = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line0.setAttribute('x1', 40); line0.setAttribute('x2', 610);
+      line0.setAttribute('y1', zeroY); line0.setAttribute('y2', zeroY);
+      line0.setAttribute('stroke', '#94a3b8'); line0.setAttribute('stroke-dasharray', '4 4');
+      bars.appendChild(line0);
+
+      values.forEach((v,i)=>{
+        const x = 40 + gap + i*(bw+gap);
+        const y = scale(v);
+        const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+        const y0 = Math.min(y, zeroY), h = Math.abs(zeroY - y);
+        rect.setAttribute('x', x);
+        rect.setAttribute('y', y0);
+        rect.setAttribute('width', bw);
+        rect.setAttribute('height', Math.max(2, h));
+        rect.setAttribute('rx', 6);
+        rect.setAttribute('fill', '#bfdbfe');
+        rect.setAttribute('stroke', '#60a5fa');
+        rect.setAttribute('stroke-width', '1');
+        bars.appendChild(rect);
+
+        const tx = document.createElementNS('http://www.w3.org/2000/svg','text');
+        tx.setAttribute('x', x + bw/2);
+        tx.setAttribute('y', baseY + 18);
+        tx.setAttribute('text-anchor', 'middle');
+        tx.setAttribute('font-size', '12');
+        tx.setAttribute('fill', '#475569');
+        tx.textContent = i+1;
+        bars.appendChild(tx);
+      });
+    }
+
+    a1El.addEventListener('input', render);
+    dEl.addEventListener('input', render);
+    nEl.addEventListener('input', render);
+    render();
+
+    // ---------------- Мини‑тренажёр ----------------
+    const taskEl = document.getElementById('task');
+    const hintEl = document.getElementById('hint');
+    const resultEl = document.getElementById('result');
+    const answerEl = document.getElementById('answer');
+
+    let currentTask = null; // {type, a1,d,n, k,m, target, answer}
+
+    function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+    function genTask(){
+      resultEl.textContent = ''; hintEl.textContent=''; answerEl.value='';
+      const type = randInt(1,4);
+      let a1,d,n,k,m,target,ans, text;
+      switch(type){
+        case 1: // найти a_n
+          a1 = randInt(-7,9); d = randInt(-5,6) || 3; n = randInt(6,15);
+          ans = a1 + (n-1)*d;
+          text = `Дано a₁=${a1}, d=${d}. Найти a${n}`; break;
+        case 2: // найти d по двум членам
+          k = randInt(2,6); m = k + randInt(3,6);
+          d = randInt(-4,5) || 2; a1 = randInt(-6,7);
+          const ak = a1 + (k-1)*d, am = a1 + (m-1)*d;
+          ans = (am - ak)/(m - k);
+          text = `Дано a${k}=${ak}, a${m}=${am}. Найти d`; break;
+        case 3: // сумма Sn
+          a1 = randInt(-5,7); d = randInt(-3,5) || 1; n = randInt(5,16);
+          ans = n/2*(2*a1 + (n-1)*d);
+          text = `Дано a₁=${a1}, d=${d}. Найти S${n}`; break;
+        case 4: // найти n по значению
+          a1 = randInt(-8,6); d = randInt(-5,6); if(d===0) d=3;
+          n = randInt(6,14); target = a1 + (n-1)*d; ans = n;
+          text = `Дано a₁=${a1}, d=${d}, aₙ=${target}. Найти n`; break;
+      }
+      currentTask = {type,a1,d,n,k,m,target,answer:ans};
+      taskEl.textContent = text;
+    }
+
+    function showHint(){
+      if(!currentTask){ hintEl.textContent = 'Сначала сгенерируй задачу.'; return; }
+      const t = currentTask.type;
+      if(t===1){ hintEl.textContent = 'Используй: aₙ = a₁ + (n−1)·d. Подставь n из условия.'; }
+      if(t===2){ hintEl.textContent = 'Разность: d = (a_m − a_k)/(m − k).'; }
+      if(t===3){ hintEl.textContent = 'Сумма: Sₙ = (n/2)·(2a₁ + (n−1)d).'; }
+      if(t===4){ hintEl.textContent = 'Реши уравнение: a₁ + (n−1)·d = заданному значению.'; }
+    }
+
+    function checkAnswer(){
+      if(!currentTask){ resultEl.textContent = 'Нет задачи'; return; }
+      const raw = answerEl.value.replace(',', '.');
+      const val = Number(raw);
+      const ok = Math.abs(val - currentTask.answer) < 1e-6;
+      resultEl.textContent = ok ? '✔ Верно!' : `✘ Неверно. Правильно: ${currentTask.answer}`;
+      resultEl.style.color = ok ? 'var(--accent)' : 'var(--warn)';
+    }
+
+    // Стартовая задача для вовлечения
+    genTask();
+  </script>
+</body>
+</html>
